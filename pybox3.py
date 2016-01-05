@@ -13,7 +13,6 @@ def login(user, pwd):
     for line in initPage.read().split('\n'):
         if (line[0:9] == "var nonce"):
             nonce = line[13:-3]
-    print nonce
     md5 = hashlib.md5()
     md5.update(user + ":" + realm + ":" + pwd)
     HA1 = md5.hexdigest()
@@ -52,6 +51,36 @@ def switchVoice(browser, cj, state):
         browser.form['voice1_enable'] = "0"
     browser.submit()
 
+def stripHTML(data):
+    p = re.compile(r'<.*?>')
+    return p.sub('', data)
+
+    
+def getIP(browser, cj, index):
+    page = browser.open('http://192.168.1.1/network-global.lp')
+    found = 0
+    remaining = 0
+    for line in page.read().split('\n'):
+        remaining -= 1
+        if (remaining == 0):
+            break
+        if "IPv4 Address" in line:
+            found += 1
+            if (found == index+1):
+                remaining = 2
+    return stripHTML(line).strip()
+
+def getInternetIP(browser, cj):
+    return getIP(browser, cj, 0)
+
+def getVideoIP(browser, cj):
+    return getIP(browser, cj, 1)
+
+def getVoiceIP(browser, cj):
+    return getIP(browser, cj, 2)
+
+
+
 user = "User"
 ### Insert your User password int the userPassword file
 with open('userPassword', 'r') as f:
@@ -68,5 +97,8 @@ login(user, pwd)
 
 ### Available commands
 #switchVoice(browser, cj, False)
-switchVoice(browser, cj, True)
+#switchVoice(browser, cj, True)
 #reboot(browser, cj)
+print("Internet IP: %s"%getInternetIP(browser, cj))
+print("Video IP: %s"%getVideoIP(browser, cj))
+print("Voice IP: %s"%getVoiceIP(browser, cj))
