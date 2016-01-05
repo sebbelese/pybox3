@@ -53,8 +53,9 @@ def switchVoice(browser, cj, state):
     browser.submit()
 
 user = "User"
-### Insert your User password here
-pwd = "XXXXXXXX"
+### Insert your User password int the userPassword file
+with open('userPassword', 'r') as f:
+    pwd = f.readline()
 
 browser = mechanize.Browser()
 browser.set_handle_robots(False)
@@ -66,6 +67,6 @@ browser.set_cookiejar(cj)
 login(user, pwd)
 
 ### Available commands
-switchVoice(browser, cj, False)
-#switchVoice(browser, cj, True)
+#switchVoice(browser, cj, False)
+switchVoice(browser, cj, True)
 #reboot(browser, cj)
