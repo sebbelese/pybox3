@@ -1,6 +1,9 @@
 ### Python interface to some bbox3v user configuration tools
 ### Sebastien Blaise, 2016
 
+### A file named "userPassword" should be created in the same directory, containing the User bbox3 password
+
+
 import hashlib
 import re
 import mechanize
