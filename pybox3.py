@@ -43,7 +43,7 @@ def reboot(browser, cj):
     browser.form['main_reboot'] = "1"
     browser.submit()
 
-def switchVoice(browser, cj, state):
+def switchVoice1(browser, cj, state):
     browser.open("http://192.168.1.1/voice-line-1.lp")
     browser.select_form(name = "voice1")
     antiCSRF(browser, cj)
@@ -53,6 +53,15 @@ def switchVoice(browser, cj, state):
     else:
         browser.form['voice1_enable'] = "0"
     browser.submit()
+
+def setVoice1Port(browser, cj, port):
+    browser.open("http://192.168.1.1/voice-line-1.lp")
+    browser.select_form(name = "voice1")
+    antiCSRF(browser, cj)
+    oldPort = browser.form['RSPort1']
+    browser.form['RSPort1'] = port
+    browser.submit()
+    return oldPort
 
 def stripHTML(data):
     p = re.compile(r'<.*?>')
@@ -83,7 +92,6 @@ def getVoiceIP(browser, cj):
     return getIP(browser, cj, 2)
 
 
-
 user = "User"
 ### Insert your User password int the userPassword file
 with open('userPassword', 'r') as f:
@@ -99,9 +107,13 @@ browser.set_cookiejar(cj)
 login(user, pwd)
 
 ### Available commands
-#switchVoice(browser, cj, False)
-#switchVoice(browser, cj, True)
+#switchVoice1(browser, cj, False)
+#switchVoice1(browser, cj, True)
 #reboot(browser, cj)
 print("Internet IP: %s"%getInternetIP(browser, cj))
 print("Video IP: %s"%getVideoIP(browser, cj))
 print("Voice IP: %s"%getVoiceIP(browser, cj))
+oldPort = setVoice1Port(browser, cj, "5070")
+print("Switching sip port from %s to 5070"%oldPort)
+print("Switching back sip port from %s to %s"%(setVoice1Port(browser, cj, oldPort), oldPort))
+
