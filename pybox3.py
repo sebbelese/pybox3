@@ -67,7 +67,7 @@ def getIP(browser, cj, index):
         remaining -= 1
         if (remaining == 0):
             break
-        if "IPv4 Address" in line:
+        if "IPv4" in line:
             found += 1
             if (found == index+1):
                 remaining = 2
