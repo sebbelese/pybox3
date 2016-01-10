@@ -1,15 +1,17 @@
+#!/data/data/com.termux/files/usr/bin/python2
+
 ### Python interface to some bbox3v user configuration tools
 ### Sebastien Blaise, 2016
 
 ### A file named "userPassword" should be created in the same directory, containing the User bbox3 password
 ### A file named "hostName" should be created in the same directory, containing the bbox3 password host name without http://
 
-
 import hashlib
 import re
 import mechanize
+import time
 
-def login(user, pwd):
+def login(host, user, pwd):
     realm = "Technicolor Gateway";
     qop = "auth"
     uri = "/login.lp"
@@ -67,7 +69,6 @@ def setVoice1Port(browser, cj, port):
 def stripHTML(data):
     p = re.compile(r'<.*?>')
     return p.sub('', data)
-
     
 def getIP(browser, cj, index):
     page = browser.open(host+"/network-global.lp")
@@ -94,13 +95,12 @@ def getVoiceIP(browser, cj):
 
 
 user = "User"
-### Insert your User password in the userPassword file
+### Insert your User password in the "userPassword" file
 with open('userPassword', 'r') as f:
     pwd = f.readline()
-### Insert your bbox3 hostname (without http://) in the userPassword file
+### Insert your bbox3 hostname (without http://) in the "hostName" file
 with open('hostName', 'r') as f:
     host = "http://"+f.readline()
-
     
 browser = mechanize.Browser()
 browser.set_handle_robots(False)
@@ -109,16 +109,25 @@ browser.addheaders = [("User-agent","Mozilla/5.0 (X11; U; Linux i686; en-US; rv:
 cj = mechanize.LWPCookieJar()
 browser.set_cookiejar(cj)
 
-login(user, pwd)
+logFile = open('/data/data/com.termux/files/home/pybox3/log','a+')
+logFile.write("Connecting to "+host+"/login.lp\n")
+login(host, user, pwd)
 
-### Available commands
-#switchVoice1(browser, cj, False)
-#switchVoice1(browser, cj, True)
-#reboot(browser, cj)
-print("Internet IP: %s"%getInternetIP(browser, cj))
-print("Video IP: %s"%getVideoIP(browser, cj))
-print("Voice IP: %s"%getVoiceIP(browser, cj))
-oldPort = setVoice1Port(browser, cj, "5070")
-print("Switching sip port from %s to 5070"%oldPort)
-print("Switching back sip port from %s to %s"%(setVoice1Port(browser, cj, oldPort), oldPort))
+logFile.write(time.strftime("%d/%m/%Y\n"))
+logFile.write(time.strftime("%H:%M:%S\n"))
+logFile.write("Internet IP: %s\n"%getInternetIP(browser, cj))
+logFile.write("Video IP: %s\n"%getVideoIP(browser, cj))
+logFile.write("Voice IP: %s\n"%getVoiceIP(browser, cj))
 
+logFile.write("Rebooting bbox3\n")
+reboot(browser, cj)
+
+#oldPort = setVoice1Port(browser, cj, "5070")
+#logFile.write("Switching sip port from %s to 5070\n"%oldPort)
+#logFile.write("Switching back sip port from %s to %s\n"%(setVoice1Port(browser, cj, oldPort), oldPort))
+
+logFile.write("XXXXXXXXXXXXXXXXXXXXXXX\n")
+
+logFile.close()
+
+exit(0)
