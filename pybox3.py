@@ -66,6 +66,18 @@ def setVoice1Port(browser, cj, port):
     browser.submit()
     return oldPort
 
+def switchPPP(browser, cj, state):
+    browser.open(host+"/network-global.lp")
+    browser.select_form(name = "pppform")
+    antiCSRF(browser, cj)
+    browser.form.find_control("wan_net").readonly = False
+    if (state):
+        browser.form['wan_net'] = "1"
+    else:
+        browser.form['wan_net'] = "0"
+    browser.submit()
+
+
 def stripHTML(data):
     p = re.compile(r'<.*?>')
     return p.sub('', data)
@@ -119,12 +131,19 @@ logFile.write("Internet IP: %s\n"%getInternetIP(browser, cj))
 logFile.write("Video IP: %s\n"%getVideoIP(browser, cj))
 logFile.write("Voice IP: %s\n"%getVoiceIP(browser, cj))
 
-logFile.write("Rebooting bbox3\n")
-reboot(browser, cj)
+#logFile.write("Rebooting bbox3\n")
+#reboot(browser, cj)
+
+logFile.write("Disconnecting ppp\n")
+switchPPP(browser, cj, 0)
+logFile.write("Reconnecting ppp\n")
+switchPPP(browser, cj, 1)
+
 
 #oldPort = setVoice1Port(browser, cj, "5070")
+#goodPort = "5060"
 #logFile.write("Switching sip port from %s to 5070\n"%oldPort)
-#logFile.write("Switching back sip port from %s to %s\n"%(setVoice1Port(browser, cj, oldPort), oldPort))
+#logFile.write("Switching (back?) sip port from %s to %s\n"%(setVoice1Port(browser, cj, goodPort), goodPort))
 
 logFile.write("XXXXXXXXXXXXXXXXXXXXXXX\n")
 
